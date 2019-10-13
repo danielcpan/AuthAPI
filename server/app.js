@@ -16,16 +16,14 @@ const { ENV } = require('./config/config');
 const app = express();
 
 // MIDDLEWARE
-if (ENV === 'developmet') {
-  app.use(morgan);
-}
+if (ENV === 'developmet') app.use(morgan);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(compress());
 app.use(helmet());
 app.use(cors());
 
-// ENABLE DETAILED API LOGGIN IN DEV ENV
+// ENABLE DETAILED API LOGGING IN DEV ENV
 if (ENV === 'development') {
   app.use(expressWinston.logger({
     winstonInstance,
