@@ -2,7 +2,7 @@ const Joi = require('@hapi/joi');
 
 module.exports = {
   // POST /api/auth/register
-  register: {
+  registerSchema: {
     body: {
       username: Joi.string().min(6).max(255),
       firstName: Joi.string().min(2).max(255),
@@ -12,7 +12,7 @@ module.exports = {
     }
   },
   // POST /api/auth/login
-  login: {
+  loginSchema: {
     body: {
       username: Joi.string().required(),
       password: Joi.string().required()

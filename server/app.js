@@ -15,32 +15,31 @@ const { ENV } = require('./config/config');
 
 const app = express();
 
-// Middleware
+// MIDDLEWARE
 if (ENV === 'developmet') {
   app.use(morgan);
 }
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(compress());
 app.use(helmet());
 app.use(cors());
-app.use(compress());
 
-// enable detailed API logging in dev env
+// ENABLE DETAILED API LOGGIN IN DEV ENV
 if (ENV === 'development') {
   app.use(expressWinston.logger({
     winstonInstance,
-    meta: true, // optional: log meta data about request (defaults to true)
+    meta: true,
     msg: 'HTTP {{req.method}} {{req.url}} {{res.statusCode}} {{res.responseTime}}ms',
-    colorStatus: true // Color the status code (default green, 3XX cyan, 4XX yellow, 5XX red).
+    colorStatus: true 
   }));
 }
 
-// Mount all routes on api
+// MOUNT ALL ROUTES ON API
 app.use('/api', routes);
 
-// If error is not an instanceOf APIError, convert it.
+// IF ERROR IS NOT AN INSTANCE OF APIERROR, CONVERT IT
 app.use((err, req, res, next) => {
-  // Format Validation Errors into one msg
   if (err instanceof expressValidation.ValidationError) {
     const unifiedErrorMessage = err.errors.map(error => error.messages.join('. ')).join(' and ');
     const validationError = new APIError(unifiedErrorMessage, err.status, true);[]
@@ -52,13 +51,13 @@ app.use((err, req, res, next) => {
   return next(err);
 });
 
-// Catch 404 and forward to Error Handler
+// CATCH 404 AND FORWARD TO ERROR HANDLER
 app.use((req, res, next) => {
   const err = new APIError('API not found', httpStatus.NOT_FOUND);
   return next(err);
 });
 
-// Error Handler
+// ERROR HANDLER
 app.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
   res.status(err.status || 500).json({
     name: err.name,
