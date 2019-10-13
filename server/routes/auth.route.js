@@ -1,31 +1,14 @@
 const express = require('express');
-// const recipeController = require('../controllers/recipe.controller');
+const validate = require('express-validation');
+const authController = require('../controllers/auth.controller');
+const paramValidation = require('../utils/paramValidation.utils');
 
 const router = express.Router(); // eslint-disable-line new-cap
 
-// router.route('/')
-//   .get(recipeController.list)
-//   .post(recipeController.create);
+router.route('/register')
+  .post(validate(paramValidation.register), authController.register)
 
-// router.route('/featured')
-//   .get(recipeController.listFeatured)
-
-// router.route('/popular')
-//   .get(recipeController.listPopular)
-  
-// router.route('/new')
-//   .get(recipeController.listNew)
-
-// router.route('/most-liked')
-//   .get(recipeController.listMostLiked)
-
-// router.route('/search')
-//   .get(recipeController.search)  
-
-// router.route('/:recipeId')
-//   .get(recipeController.get)
-
-// router.route('/scrape/:mainIngredient?/:cuisine?/:season?')
-//   .get(recipeController.list)
+router.route('/login')
+  .post(validate(paramValidation.login), authController.login)  
 
 module.exports = router;

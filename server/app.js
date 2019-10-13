@@ -7,6 +7,7 @@ const helmet = require('helmet');
 const compress = require('compression');
 const bodyParser = require('body-parser');
 const expressWinston = require('express-winston');
+const expressValidation = require('express-validation');
 const winstonInstance = require('./winston');
 const routes = require('./routes/index.route');
 const APIError = require('./utils/APIError.utils');
@@ -40,7 +41,7 @@ app.use('/api', routes);
 // If error is not an instanceOf APIError, convert it.
 app.use((err, req, res, next) => {
   // Format Validation Errors into one msg
-  if (err.name === 'ValidationError') {
+  if (err instanceof expressValidation.ValidationError) {
     const unifiedErrorMessage = err.errors.map(error => error.messages.join('. ')).join(' and ');
     const validationError = new APIError(unifiedErrorMessage, err.status, true);[]
     return next(validationError);
