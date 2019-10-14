@@ -4,6 +4,7 @@ const bcrypt = require('bcrypt');
 const UserSchema = new mongoose.Schema({
   username: {
     type: String,
+    unique: true,
     min: 6,
     max: 255,
   },
@@ -18,6 +19,7 @@ const UserSchema = new mongoose.Schema({
   email: {
     type: String,
     required: true,
+    unique: true,
     max: 255,
   },
   password: {
@@ -41,6 +43,10 @@ const UserSchema = new mongoose.Schema({
 UserSchema.method({
   validPassword: function (password) {
     return bcrypt.compareSync(password, this.password);
+  },
+  withoutPass: function () {
+    const { password, ...userWithoutPass } = this.toJSON();
+    return userWithoutPass;
   }
 });
 

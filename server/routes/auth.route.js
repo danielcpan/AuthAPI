@@ -1,13 +1,14 @@
 const express = require('express');
 const validate = require('express-validation');
 const authController = require('../controllers/auth.controller');
-const { registerSchema, loginSchema } = require('../utils/param-validation.utils');
+const paramValidation = require('../utils/param-validation.utils');
+
 const router = express.Router(); 
 
 router.route('/register')
-  .post(validate(registerSchema), authController.register)
+  .post(validate(paramValidation.register), authController.register)
 
 router.route('/login')
-  .post(validate(loginSchema), authController.login)
+  .post(validate(paramValidation.login), authController.login)
 
 module.exports = router;

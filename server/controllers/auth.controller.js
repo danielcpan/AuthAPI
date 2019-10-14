@@ -5,18 +5,7 @@ const APIError = require('../utils/APIError.utils');
 const { JWT_SECRET } = require('../config/config');
 
 module.exports = {
-register: async (req, res, next) => {
-    // Joi removes the necessity of these
-    // if (!req.body.email) {
-    //   const errMsg = 'Email is required to register'
-    //   return next(new APIError(errMsg, httpStatus.UNAUTHORIZED, true));
-    // }
-
-    // if (!req.body.password) {
-    //   const errMsg = 'Password is required to register'
-    //   return next(new APIError(errMsg, httpStatus.UNAUTHORIZED, true));
-    // }
-
+  register: async (req, res, next) => {
     try {
       const user = await User.findOne({ email: new RegExp(req.body.email, 'i')});
 
@@ -31,11 +20,10 @@ register: async (req, res, next) => {
       })
 
       await newUser.save();
-      const { password, ...withoutPass } = newUser.toJSON();
-      const token = jwt.sign(withoutPass, JWT_SECRET, { expiresIn: '365d' });
+      const token = jwt.sign(newUser.withoutPass(), JWT_SECRET, { expiresIn: '365d' });
 
       return res.status(httpStatus.CREATED).json({
-        user: withoutPass,
+        user: newUser.withoutPass(),
         token
       });
     } catch (err) {
@@ -43,7 +31,7 @@ register: async (req, res, next) => {
       return next(new APIError('Authentication error', httpStatus.UNAUTHORIZED, true));
     }
   },
-  login: async (req, res, next) => {   
+  login: async (req, res, next) => {
     try {
       const user = await User.findOne({ email: new RegExp(req.body.email, 'i')});
 
@@ -54,9 +42,8 @@ register: async (req, res, next) => {
       if (!user.validPassword(req.body.password)) {
         return next(new APIError('Password is incorrect', httpStatus.UNAUTHORIZED));
       }
-      
-      const { password, ...withoutPass } = user.toJSON();
-      const token = jwt.sign(withoutPass, JWT_SECRET, { expiresIn: '365d' });
+
+      const token = jwt.sign(user.withoutPass(), JWT_SECRET, { expiresIn: '365d' });
 
       return res.status(httpStatus.OK).json({ token });
     } catch (err) {
