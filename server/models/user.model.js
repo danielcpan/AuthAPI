@@ -39,16 +39,16 @@ const UserSchema = new mongoose.Schema({
 });
 
 UserSchema.method({
-  validPassword: function validPassword(password) {
+  validPassword: function (password) {
     return bcrypt.compareSync(password, this.password);
   }
 });
 
 UserSchema.static({
-  generateHash: function generateHash(password) {
-    return bcrypt.hashSync(password, bcrypt.genSaltSync(8), null);
+  generateHash: function (password) {
+    return bcrypt.hashSync(password, bcrypt.genSaltSync(10), null);
   },
-  isValidHash: function validPassword({ original, hash }) {
+  isValidHash: function({ original, hash }) {
     return bcrypt.compareSync(original, hash);
   },
 });

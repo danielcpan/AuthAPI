@@ -5,7 +5,7 @@ const APIError = require('../utils/APIError.utils');
 const { JWT_SECRET } = require('../config/config');
 
 module.exports = {
-  register: async (req, res, next) => {
+register: async (req, res, next) => {
     // Joi removes the necessity of these
     // if (!req.body.email) {
     //   const errMsg = 'Email is required to register'
@@ -31,10 +31,11 @@ module.exports = {
       })
 
       await newUser.save();
-      const token = jwt.sign(newUser.toJSON(), JWT_SECRET, { expiresIn: '365d' });
+      const { password, ...withoutPass } = newUser.toJSON();
+      const token = jwt.sign(withoutPass, JWT_SECRET, { expiresIn: '365d' });
 
       return res.status(httpStatus.CREATED).json({
-        user: newUser,
+        user: withoutPass,
         token
       });
     } catch (err) {
@@ -53,8 +54,9 @@ module.exports = {
       if (!user.validPassword(req.body.password)) {
         return next(new APIError('Password is incorrect', httpStatus.UNAUTHORIZED));
       }
-
-      const token = jwt.sign(user.toJSON(), JWT_SECRET, { expiresIn: '365d' });
+      
+      const { password, ...withoutPass } = user.toJSON();
+      const token = jwt.sign(withoutPass, JWT_SECRET, { expiresIn: '365d' });
 
       return res.status(httpStatus.OK).json({ token });
     } catch (err) {

@@ -31,9 +31,9 @@ describe('## Auth APIs', () => {
   
         expect(response.status).to.equal(httpStatus.CREATED);
         expect(user.email).to.equal(validUserCredentials.email)
-        expect(user.password).to.not.equal(validUserCredentials.password)
+        expect(user).to.not.have.property('password')
         expect(decoded.email).to.equal(validUserCredentials.email)
-        expect(decoded.password).to.not.equal(validUserCredentials.password)      
+        expect(decoded).to.not.have.property('password')
       });
     })
 
@@ -140,7 +140,7 @@ describe('## Auth APIs', () => {
 
         expect(loginResponse.status).to.equal(httpStatus.OK);
         expect(decoded.email).to.equal(validUserCredentials.email)
-        expect(decoded.password).to.not.equal(validUserCredentials.password)      
+        expect(decoded).to.not.have.property('password')
       });
     })
 
