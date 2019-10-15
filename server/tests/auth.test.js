@@ -5,11 +5,11 @@ const User = require('../models/user.model');
 const { clearDatabase } = require('../utils/mongoose.utils');
 const { JWT_SECRET } = require('../config/config');
 
-describe('## Auth APIs', () => {
+after(async () => {
+  await clearDatabase();
+});
 
-  before(async () => {
-    await clearDatabase();
-  });
+describe('## Auth APIs', () => {
 
   afterEach(async () => {
     await User.deleteMany({});
@@ -25,7 +25,7 @@ describe('## Auth APIs', () => {
         const response = await request(app)
           .post('/api/auth/register')
           .send(validUserCredentials);
-  
+        
         const { user, token } = response.body;
         const decoded = jwt.verify(token, JWT_SECRET);
   

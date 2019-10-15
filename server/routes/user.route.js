@@ -10,12 +10,15 @@ const router = express.Router();
 router.route('/me')
   .get(expressJwt({ secret: JWT_SECRET }), userController.me)
 
-  router.route('/search')
-  .get(expressJwt({ secret: JWT_SECRET }), userController.search)  
+router.route('/search')
+  .get(expressJwt({ secret: JWT_SECRET }), userController.search)
 
 router.route('/:userId')
   .get(expressJwt({ secret: JWT_SECRET }), userController.get)
-  .put(expressJwt({ secret: JWT_SECRET }), userController.update)
+  .put(
+    expressJwt({ secret: JWT_SECRET }), 
+    validate(paramValidation.updateUser), userController.update
+  )
 
 // router.route('/regain-password')
 //   .post(validate(paramValidation.regainPassword), userController.regainPassword);

@@ -1,5 +1,3 @@
-console.log('we are in config test')
-
 module.exports = {
   ENV: 'test',
   MONGODB_URI: 'mongodb://127.0.0.1:27017/auth_test',

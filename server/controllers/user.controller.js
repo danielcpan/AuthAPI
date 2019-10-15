@@ -48,10 +48,14 @@ module.exports = {
   update: async (req, res, next) => {
     const { userId } = req.params
 
+    // Check if password update attempt present
+    if (req.body.password) {
+      const errMsg = 'Cannot update password without email verification'
+      return next(new APIError(errMsg, httpStatus.UNAUTHORIZED));
+    }
+
     try {
       const user = await User.findOne({ _id: userId });
-      console.log('user')
-      console.log(user)
 
       // Check if user exists
       if (!user) {

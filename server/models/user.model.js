@@ -4,7 +4,6 @@ const bcrypt = require('bcrypt');
 const UserSchema = new mongoose.Schema({
   username: {
     type: String,
-    unique: true,
     min: 6,
     max: 255,
   },
@@ -41,17 +40,17 @@ const UserSchema = new mongoose.Schema({
 });
 
 UserSchema.method({
-  validPassword: function (password) {
+  validPassword: function(password) {
     return bcrypt.compareSync(password, this.password);
   },
-  withoutPass: function () {
+  withoutPass: function() {
     const { password, ...userWithoutPass } = this.toJSON();
     return userWithoutPass;
   }
 });
 
 UserSchema.static({
-  generateHash: function (password) {
+  generateHash: function(password) {
     return bcrypt.hashSync(password, bcrypt.genSaltSync(10), null);
   },
   isValidHash: function({ original, hash }) {
