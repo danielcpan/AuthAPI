@@ -19,19 +19,19 @@ module.exports = {
   
   // USER ROUTE SCHEMA
   // POST /api/user/regain-password
-  // regainPassword: {
-  //   body: {
-  //     resetUID: Joi.string().required(),
-  //     newPassword: Joi.string().required(),
-  //     secretKey: Joi.string().required()
-  //   }
-  // },
+  regainPassword: {
+    body: {
+      resetUID: Joi.string().required(),
+      newPassword: Joi.string().required(),
+      secretKey: Joi.string().required()
+    }
+  },
   // POST /api/user/password-reset
-  // requestPasswordReset: {
-  //   body: {
-  //     email: Joi.string().email().required()
-  //   }
-  // },
+  requestPasswordReset: {
+    body: {
+      email: Joi.string().email().required()
+    }
+  },
   // PUT /api/users/:userId
   updateUser: {
     body: {

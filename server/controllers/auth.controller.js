@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken');
 const httpStatus = require('http-status');
 const User = require('../models/user.model');
 const APIError = require('../utils/APIError.utils');
+const { sendRegistrationEmail } = require('../utils/node-mailer.utils');
 const { JWT_SECRET } = require('../config/config');
 
 module.exports = {
@@ -21,14 +22,14 @@ module.exports = {
 
       await newUser.save();
       const token = jwt.sign(newUser.withoutPass(), JWT_SECRET, { expiresIn: '365d' });
+      sendRegistrationEmail(req.body.email);
 
       return res.status(httpStatus.CREATED).json({
         user: newUser.withoutPass(),
         token
       });
     } catch (err) {
-      // Explicity specify this as an auth error
-      return next(new APIError('Authentication error', httpStatus.UNAUTHORIZED, true));
+      return next(err);
     }
   },
   login: async (req, res, next) => {
@@ -47,8 +48,7 @@ module.exports = {
 
       return res.status(httpStatus.OK).json({ token });
     } catch (err) {
-      // Explicity specify this as an auth error
-      return next(new APIError('Authentication error', httpStatus.UNAUTHORIZED, true));
+      return next(err);
     }
   }
 };

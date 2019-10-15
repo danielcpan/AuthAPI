@@ -96,4 +96,18 @@ module.exports = {
       return next(err);
     }
   },
+  requestPasswordReset: async (req, res, next) => {
+    try {
+      return res.status(httpStatus.OK).json(req.user)
+    } catch (err) {
+      return next(err);
+    }
+  },
+  regainPassword: async (req, res, next) => {
+    try {
+      return res.status(httpStatus.OK).json(req.user)
+    } catch (err) {
+      return next(err);
+    }
+  },
 };
