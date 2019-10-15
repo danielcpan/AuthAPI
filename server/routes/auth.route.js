@@ -11,4 +11,13 @@ router.route('/register')
 router.route('/login')
   .post(validate(paramValidation.login), authController.login)
 
+router.route('/verify-email/:token')
+  .get(authController.verifyEmail)
+
+// router.route('/regain-password')
+//   .post(validate(paramValidation.regainPassword), userController.regainPassword);
+
+// router.route('/request-password-reset')
+//   .post(validate(paramValidation.requestPasswordReset),userController.requestPasswordReset);
+
 module.exports = router;

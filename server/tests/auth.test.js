@@ -1,4 +1,4 @@
-const jwt = require('jsonwebtoken');
+const jwt = require('jsonwebToken');
 const httpStatus = require('http-status');
 const app = require('../app');
 const User = require('../models/user.model');
@@ -17,7 +17,7 @@ describe('## Auth APIs', () => {
 
   describe('# POST /api/auth/register', () => {
     describe('with valid user credentials', () => {
-      it('should create new user valid token', async () => {
+      it('should create new user valid authToken', async () => {
         const validUserCredentials = {
           email: 'foobar@gmail.com',
           password: 'foobar123',
@@ -26,8 +26,8 @@ describe('## Auth APIs', () => {
           .post('/api/auth/register')
           .send(validUserCredentials);
         
-        const { user, token } = response.body;
-        const decoded = jwt.verify(token, JWT_SECRET);
+        const { user, authToken } = response.body;
+        const decoded = jwt.verify(authToken, JWT_SECRET);
   
         expect(response.status).to.equal(httpStatus.CREATED);
         expect(user.email).to.equal(validUserCredentials.email)
@@ -120,7 +120,7 @@ describe('## Auth APIs', () => {
 
   describe('# POST /api/auth/login', () => {
     describe('with valid user credentials', () => {
-      it('should create new user valid token', async () => {
+      it('should create new user valid authToken', async () => {
         const validUserCredentials = {
           email: 'foobar@gmail.com',
           password: 'foobar123',
@@ -135,8 +135,8 @@ describe('## Auth APIs', () => {
           .post('/api/auth/login')
           .send(validUserCredentials);
 
-        const { token } = loginResponse.body;
-        const decoded = jwt.verify(token, JWT_SECRET);
+        const { authToken } = loginResponse.body;
+        const decoded = jwt.verify(authToken, JWT_SECRET);
 
         expect(loginResponse.status).to.equal(httpStatus.OK);
         expect(decoded.email).to.equal(validUserCredentials.email)

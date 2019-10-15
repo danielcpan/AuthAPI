@@ -8,7 +8,7 @@ after(async () => {
 
 describe('## User APIs', () => {
   let user;
-  let userToken;
+  let userAuthToken;
 
   before(async () => {
     const validUserCredentials = {
@@ -21,15 +21,15 @@ describe('## User APIs', () => {
       .send(validUserCredentials);
 
     user = response.body.user;
-    userToken = response.body.token
+    userAuthToken = response.body.authToken
   });
 
   describe('# GET /api/users/me', () => {
-    describe('with valid token', () => {
+    describe('with valid authToken', () => {
       it('should return current user', async () => {
         const response = await request(app)
           .get('/api/users/me')
-          .set({ 'Authorization': `Bearer ${userToken}`})
+          .set({ 'Authorization': `Bearer ${userAuthToken}`})
 
         expect(response.status).to.equal(httpStatus.OK);
         expect(response.body._id).to.equal(user._id);
@@ -37,7 +37,7 @@ describe('## User APIs', () => {
       });
     })
 
-    describe('with invalid token', () => {
+    describe('with invalid authToken', () => {
       it('should return authentication error', async () => {
         const response = await request(app)
           .get('/api/users/me')
@@ -49,11 +49,11 @@ describe('## User APIs', () => {
   });
 
   describe('# GET /api/users/:userId', () => {
-    describe('with valid token', () => {
+    describe('with valid authToken', () => {
       it('should return current user', async () => {
         const response = await request(app)
           .get(`/api/users/${user._id}`)
-          .set('Authorization', `Bearer ${userToken}`)
+          .set('Authorization', `Bearer ${userAuthToken}`)
 
         expect(response.status).to.equal(httpStatus.OK);
         expect(response.body._id).to.equal(user._id);
@@ -61,7 +61,7 @@ describe('## User APIs', () => {
       });
     })
 
-    describe('with invalid token', () => {
+    describe('with invalid authToken', () => {
       it('should return authentication error', async () => {
         const response = await request(app)
           .get(`/api/users/${user._id}`)
@@ -75,7 +75,7 @@ describe('## User APIs', () => {
       it('should return not found error', async () => {
         const response = await request(app)
           .get('/api/users/nonExistingUserId')
-          .set('Authorization', `Bearer ${userToken}`)
+          .set('Authorization', `Bearer ${userAuthToken}`)
 
         expect(response.status).to.equal(httpStatus.INTERNAL_SERVER_ERROR);
       });
@@ -83,19 +83,19 @@ describe('## User APIs', () => {
   }); 
   
   describe('# GET /api/users/search', () => {
-    describe('with valid token', () => {
+    describe('with valid authToken', () => {
       it('should return searched users', async () => {
         const response = await request(app)
           .get('/api/users/search')
           .query({ val: 'foo'})
-          .set('Authorization', `Bearer ${userToken}`)
+          .set('Authorization', `Bearer ${userAuthToken}`)
 
         expect(response.status).to.equal(httpStatus.OK);
         expect(response.body.length).to.equal(1);
       });
     })
 
-    describe('with invalid token', () => {
+    describe('with invalid authToken', () => {
       it('should return authentication error', async () => {
         const response = await request(app)
           .get('/api/users/search')
@@ -108,7 +108,7 @@ describe('## User APIs', () => {
   });   
 
   describe('# PUT /api/users/:userId', () => {
-    describe('with valid token', () => {
+    describe('with valid authToken', () => {
       it('should update own user', async () => {
         const validUserCredentials = {
           email: 'validFooBar@gmail.com',
@@ -119,7 +119,7 @@ describe('## User APIs', () => {
           .post('/api/auth/register')
           .send(validUserCredentials);
 
-        const { user, token } = registerResponse.body
+        const { user, authToken } = registerResponse.body
 
         const updatedUserData = {
           username: 'foobarz',
@@ -131,7 +131,7 @@ describe('## User APIs', () => {
         const updateResponse = await request(app)
           .put(`/api/users/${user._id}`)
           .send(updatedUserData)
-          .set('Authorization', `Bearer ${token}`)
+          .set('Authorization', `Bearer ${authToken}`)
 
         expect(updateResponse.status).to.equal(httpStatus.OK);
         expect(updateResponse.body.username).to.equal(updatedUserData.username);
@@ -141,7 +141,7 @@ describe('## User APIs', () => {
       });
     })
 
-    describe('with invalid token', () => {
+    describe('with invalid authToken', () => {
       it('should return authentication error', async () => {
         const validUserCredentials = {
           email: 'invalidToken@gmail.com',
@@ -152,7 +152,7 @@ describe('## User APIs', () => {
           .post('/api/auth/register')
           .send(validUserCredentials);
 
-        const { user, token } = registerResponse.body
+        const { user, authToken } = registerResponse.body
 
         const updatedUserData = {
           username: 'foobarz',
@@ -181,7 +181,7 @@ describe('## User APIs', () => {
           .post('/api/auth/register')
           .send(validUserCredentials);
 
-        const { user, token } = registerResponse.body
+        const { user, authToken } = registerResponse.body
 
         const updatedUserData = {
           password: 'newPassword'
@@ -190,7 +190,7 @@ describe('## User APIs', () => {
         const updateResponse = await request(app)
           .put(`/api/users/${user._id}`)
           .send(updatedUserData)
-          .set('Authorization', `Bearer ${token}`)
+          .set('Authorization', `Bearer ${authToken}`)
 
         expect(updateResponse.status).to.equal(httpStatus.UNAUTHORIZED);
       });
@@ -207,7 +207,7 @@ describe('## User APIs', () => {
           .post('/api/auth/register')
           .send(validUserCredentials);
 
-        const { user, token } = registerResponse.body
+        const { user, authToken } = registerResponse.body
         
         const updatedUserData = {
           email: 'updatedExistingEmail@gmail.com'
@@ -216,7 +216,7 @@ describe('## User APIs', () => {
         const updateResponse = await request(app)
           .put(`/api/users/${user._id}`)
           .send(updatedUserData)
-          .set('Authorization', `Bearer ${userToken}`)
+          .set('Authorization', `Bearer ${userAuthToken}`)
 
         expect(updateResponse.status).to.equal(httpStatus.UNAUTHORIZED);
       });
@@ -233,7 +233,7 @@ describe('## User APIs', () => {
           .post('/api/auth/register')
           .send(validUserCredentials);
 
-        const { user, token } = registerResponse.body
+        const { user, authToken } = registerResponse.body
         
         const updatedUserData = {
           username: 'existingUsername'
@@ -242,7 +242,7 @@ describe('## User APIs', () => {
         const updateResponse = await request(app)
           .put(`/api/users/${user._id}`)
           .send(updatedUserData)
-          .set('Authorization', `Bearer ${token}`)
+          .set('Authorization', `Bearer ${authToken}`)
 
         expect(updateResponse.status).to.equal(httpStatus.OK);
 
@@ -253,7 +253,7 @@ describe('## User APIs', () => {
         const updateResponse2 = await request(app)
           .put(`/api/users/${user._id}`)
           .send(updatedUserData2)
-          .set('Authorization', `Bearer ${token}`)
+          .set('Authorization', `Bearer ${authToken}`)
 
         expect(updateResponse2.status).to.equal(httpStatus.UNAUTHORIZED);
       });

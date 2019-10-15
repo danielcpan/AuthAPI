@@ -20,10 +20,4 @@ router.route('/:userId')
     validate(paramValidation.updateUser), userController.update
   )
 
-// router.route('/regain-password')
-//   .post(validate(paramValidation.regainPassword), userController.regainPassword);
-
-// router.route('/request-password-reset')
-//   .post(validate(paramValidation.requestPasswordReset),userController.requestPasswordReset);
-
 module.exports = router;

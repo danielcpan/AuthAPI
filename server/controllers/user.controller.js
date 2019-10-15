@@ -1,6 +1,8 @@
+const jwt = require('jsonwebToken');
 const httpStatus = require('http-status');
 const User = require('../models/user.model');
 const APIError = require('../utils/APIError.utils');
+const { EMAIL_SECRET } = require('../config/config');
 
 module.exports = {
   me: async (req, res, next) => {
@@ -60,7 +62,7 @@ module.exports = {
       // Check if user exists
       if (!user) {
         return next(new APIError('User not found', httpStatus.NOT_FOUND));
-      }    
+      }
   
       // Check if same user because only same user can modify self
       if (req.user._id !== userId) {
@@ -92,20 +94,6 @@ module.exports = {
       await user.save();
 
       return res.status(httpStatus.OK).json(user.withoutPass());
-    } catch (err) {
-      return next(err);
-    }
-  },
-  requestPasswordReset: async (req, res, next) => {
-    try {
-      return res.status(httpStatus.OK).json(req.user)
-    } catch (err) {
-      return next(err);
-    }
-  },
-  regainPassword: async (req, res, next) => {
-    try {
-      return res.status(httpStatus.OK).json(req.user)
     } catch (err) {
       return next(err);
     }

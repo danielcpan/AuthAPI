@@ -1,8 +1,8 @@
 const nodemailer = require('nodemailer');
-// const fs = require('fs');
-const { ENV, NODE_MAILER_USER, NODE_MAILER_PASS } = require('../config/config');
-// const registerEmailHtml = require('../assets/register-email.html');
-
+const fs = require('fs');
+const path = require('path');
+const { ENV, PUBLIC_URL, NODE_MAILER_USER, NODE_MAILER_PASS } = require('../config/config');
+const handlebars = require('handlebars');
 
 module.exports = {
   createTransporter: () => {
@@ -20,16 +20,23 @@ module.exports = {
       }      
     })
   },
-  sendRegistrationEmail: async (email) => {
+  sendRegistrationEmail: async (email, emailToken) => {
     const transporter = module.exports.createTransporter();
+    const html = fs.readFileSync(path.resolve(__dirname + '../../assets/register-email.html'), 'utf8')
+    const template = handlebars.compile(html);
+    const replacements = {
+      msg: `Thanks for making an account for one of my portfolio apps! Click below to verify your account`,
+      actionLink: `${PUBLIC_URL}/api/auth/verify-email/${emailToken}`,
+      actionMsg: 'Verify My Email'
+    }
+    const htmlToSend = template(replacements)
 
     try {
       const info = await transporter.sendMail({
-        from: `"Daniel Pan's Auth API" <${NODE_MAILER_USER}>`, 
+        from: `"Daniel's Auth API Service" <${NODE_MAILER_USER}>`, 
         to: email, 
         subject: 'Verify Your Email', 
-        text: 'Hello World'
-        // html: registerEmailHtml
+        html: htmlToSend
       })
 
       if (ENV === 'development') {
