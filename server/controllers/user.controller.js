@@ -1,13 +1,11 @@
-const jwt = require('jsonwebToken');
 const httpStatus = require('http-status');
 const User = require('../models/user.model');
 const APIError = require('../utils/APIError.utils');
-const { EMAIL_SECRET } = require('../config/config');
 
 module.exports = {
   me: async (req, res, next) => {
     try {
-      return res.status(httpStatus.OK).json(req.user)
+      return res.status(httpStatus.OK).json(req.user);
     } catch (err) {
       return next(err);
     }
@@ -22,7 +20,7 @@ module.exports = {
         return next(new APIError('User not found', httpStatus.NOT_FOUND));
       }
 
-      return res.status(httpStatus.OK).json(user.withoutPass())
+      return res.status(httpStatus.OK).json(user.withoutPass());
     } catch (err) {
       return next(err);
     }
@@ -33,14 +31,14 @@ module.exports = {
     try {
       const users = await User.find({
         $or: [
-          { 'email': { $regex: val, $options: 'i' }},
-          { 'firstName': { $regex: val, $options: 'i' }},
-          { 'lastName': { $regex: val, $options: 'i' }},
-          { 'username': { $regex: val, $options: 'i' }},
-        ]
+          { email: { $regex: val, $options: 'i' } },
+          { firstName: { $regex: val, $options: 'i' } },
+          { lastName: { $regex: val, $options: 'i' } },
+          { username: { $regex: val, $options: 'i' } },
+        ],
       })
-      .select('-password')
-      .limit(10);
+        .select('-password')
+        .limit(10);
 
       return res.status(httpStatus.OK).json(users);
     } catch (err) {
@@ -48,11 +46,11 @@ module.exports = {
     }
   },
   update: async (req, res, next) => {
-    const { userId } = req.params
+    const { userId } = req.params;
 
     // Check if password update attempt present
     if (req.body.password) {
-      const errMsg = 'Cannot update password without email verification'
+      const errMsg = 'Cannot update password without email verification';
       return next(new APIError(errMsg, httpStatus.UNAUTHORIZED));
     }
 
@@ -63,7 +61,7 @@ module.exports = {
       if (!user) {
         return next(new APIError('User not found', httpStatus.NOT_FOUND));
       }
-  
+
       // Check if same user because only same user can modify self
       if (req.user._id !== userId) {
         return next(new APIError('Can only update own account', httpStatus.UNAUTHORIZED));
@@ -80,17 +78,19 @@ module.exports = {
 
       // Check if email is unique
       if (req.body.email) {
-        const userWithEmail = await User.findOne({ email: new RegExp(req.body.email, 'i')});
+        const userWithEmail = await User.findOne({ email: new RegExp(req.body.email, 'i') });
 
         if (userWithEmail) {
-          const errMsg = 'User with this email already exists'
+          const errMsg = 'User with this email already exists';
           return next(new APIError(errMsg, httpStatus.UNAUTHORIZED, true));
-        }        
+        }
       }
 
       // Limit updates to only updatable fields
-      const { isVerified, isAdmin, password, ...updatableUserFields } = req.body;
-      Object.assign(user, updatableUserFields)
+      const {
+        isVerified, isAdmin, password, ...updatableUserFields
+      } = req.body;
+      Object.assign(user, updatableUserFields);
       await user.save();
 
       return res.status(httpStatus.OK).json(user.withoutPass());

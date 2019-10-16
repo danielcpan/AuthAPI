@@ -29,26 +29,9 @@ if (ENV === 'development') {
     winstonInstance,
     meta: true,
     msg: 'HTTP {{req.method}} {{req.url}} {{res.statusCode}} {{res.responseTime}}ms',
-    colorStatus: true 
+    colorStatus: true,
   }));
 }
-
-//
-// app.use('/request-password-reset', (req, res) => {
-//   const theHtml = `
-//   <html>
-//   <head><title>My First SSR</title></head>
-//   <body>
-//   <h1>My First Server Side Render</h1>
-//   <div id="reactele">{{{reactele}}}</div>
-//   <script src="/app.js" charset="utf-8"></script>
-//   <script src="/vendor.js" charset="utf-8"></script>
-//   </body>
-//   </html>
-//   `;
-
-//   res.send(theHtml);  
-// })
 
 // MOUNT ALL ROUTES ON API
 app.use('/api', routes);
@@ -56,10 +39,10 @@ app.use('/api', routes);
 // IF ERROR IS NOT AN INSTANCE OF APIERROR, CONVERT IT
 app.use((err, req, res, next) => {
   if (err instanceof expressValidation.ValidationError) {
-    const unifiedErrorMessage = err.errors.map(error => error.messages.join('. ')).join(' and ');
-    const validationError = new APIError(unifiedErrorMessage, err.status, true);[]
+    const unifiedErrorMessage = err.errors.map((error) => error.messages.join('. ')).join(' and ');
+    const validationError = new APIError(unifiedErrorMessage, err.status, true);
     return next(validationError);
-  } else if (!(err instanceof APIError)) {
+  } if (!(err instanceof APIError)) {
     const apiError = new APIError(err.message, err.status);
     return next(apiError);
   }

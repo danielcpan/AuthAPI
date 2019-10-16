@@ -29,31 +29,31 @@ const UserSchema = new mongoose.Schema({
   },
   isVerified: {
     type: Boolean,
-    default: false
-  },  
+    default: false,
+  },
   isAdmin: {
     type: Boolean,
-    default: false,    
-  }
+    default: false,
+  },
 }, {
   timestamps: true,
 });
 
 UserSchema.method({
-  validPassword: function(password) {
+  validPassword(password) {
     return bcrypt.compareSync(password, this.password);
   },
-  withoutPass: function() {
+  withoutPass() {
     const { password, ...userWithoutPass } = this.toJSON();
     return userWithoutPass;
-  }
+  },
 });
 
 UserSchema.static({
-  generateHash: function(password) {
+  generateHash(password) {
     return bcrypt.hashSync(password, bcrypt.genSaltSync(10), null);
   },
-  isValidHash: function({ original, hash }) {
+  isValidHash({ original, hash }) {
     return bcrypt.compareSync(original, hash);
   },
 });

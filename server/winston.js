@@ -5,9 +5,9 @@ const logger = winston.createLogger({
     new (winston.transports.Console)({
       json: true,
       prettyPrint: true,
-      colorize: true
-    })
-  ]
+      colorize: true,
+    }),
+  ],
 });
 
 module.exports = logger;

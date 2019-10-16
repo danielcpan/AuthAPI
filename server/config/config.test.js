@@ -6,5 +6,5 @@ module.exports = {
   JWT_SECRET: process.env.JWT_SECRET,
   NODE_MAILER_USER: 'baylee.hauck53@ethereal.email',
   NODE_MAILER_PASS: process.env.ETHEREAL_PASS,
-  EMAIL_SECRET: process.env.EMAIL_SECRET
-}
+  EMAIL_SECRET: process.env.EMAIL_SECRET,
+};

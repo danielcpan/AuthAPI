@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 const httpStatus = require('http-status');
-const randomstring = require("randomstring");
+const randomstring = require('randomstring');
 const User = require('../models/user.model');
 const PasswordReset = require('../models/password-reset.model');
 const APIError = require('../utils/APIError.utils');
@@ -10,27 +10,27 @@ const { JWT_SECRET, EMAIL_SECRET } = require('../config/config');
 module.exports = {
   register: async (req, res, next) => {
     try {
-      const user = await User.findOne({ email: new RegExp(req.body.email, 'i')});
+      const user = await User.findOne({ email: new RegExp(req.body.email, 'i') });
 
       if (user) {
-        const errMsg = 'User already exists'
+        const errMsg = 'User already exists';
         return next(new APIError(errMsg, httpStatus.UNAUTHORIZED, true));
       }
 
       const newUser = new User({
         ...req.body,
-        password: User.generateHash(req.body.password)
-      })
+        password: User.generateHash(req.body.password),
+      });
 
       await newUser.save();
       const authToken = jwt.sign(newUser.withoutPass(), JWT_SECRET, { expiresIn: '365d' });
-      const emailToken = jwt.sign(newUser.withoutPass(), EMAIL_SECRET, { expiresIn: '1h'})
+      const emailToken = jwt.sign(newUser.withoutPass(), EMAIL_SECRET, { expiresIn: '1h' });
       sendRegistrationEmail(req.body.email, emailToken);
 
       return res.status(httpStatus.CREATED).json({
         user: newUser.withoutPass(),
         authToken,
-        emailToken
+        emailToken,
       });
     } catch (err) {
       return next(err);
@@ -38,7 +38,7 @@ module.exports = {
   },
   login: async (req, res, next) => {
     try {
-      const user = await User.findOne({ email: new RegExp(req.body.email, 'i')});
+      const user = await User.findOne({ email: new RegExp(req.body.email, 'i') });
 
       if (!user) {
         return next(new APIError('User not found', httpStatus.NOT_FOUND));
@@ -57,8 +57,8 @@ module.exports = {
   },
   verifyEmail: async (req, res, next) => {
     try {
-      const { _id } = jwt.verify(req.params.token, EMAIL_SECRET); 
-      const user = await User.findOne({ _id })
+      const { _id } = jwt.verify(req.params.token, EMAIL_SECRET);
+      const user = await User.findOne({ _id });
 
       if (!user) {
         return next(new APIError('User not found', httpStatus.NOT_FOUND));
@@ -67,7 +67,7 @@ module.exports = {
       user.isVerified = true;
       await user.save();
 
-      return res.send('Email Verified!')
+      return res.send('Email Verified!');
     } catch (err) {
       return next(err);
     }
@@ -76,8 +76,8 @@ module.exports = {
   requestPasswordReset: async (req, res, next) => {
     try {
       const { email } = req.body;
-      const user = await User.findOne({ email })
-  
+      const user = await User.findOne({ email });
+
       if (!user) {
         return next(new APIError('User not found', httpStatus.NOT_FOUND));
       }
@@ -87,15 +87,15 @@ module.exports = {
       const newPasswordReset = new PasswordReset({
         userId: user._id,
         hash,
-        email
+        email,
       });
       await newPasswordReset.save();
-      sendResetPasswordEmail(email, secretKey, newPasswordReset._id)
+      sendResetPasswordEmail(email, secretKey, newPasswordReset._id);
 
       return res.status(httpStatus.OK).json({
         passwordReset: newPasswordReset,
-        secretKey: secretKey
-      })
+        secretKey,
+      });
     } catch (err) {
       return next(err);
     }
@@ -103,9 +103,9 @@ module.exports = {
   // Functionality works but needs a front end form
   regainPassword: async (req, res, next) => {
     try {
-      const { secretKey, newPassword, passwordResetId } = req.body
+      const { secretKey, newPassword, passwordResetId } = req.body;
       const passwordReset = await PasswordReset.findOne({ _id: passwordResetId, isDeleted: false });
-      
+
       if (!passwordReset) {
         return next(new APIError('Invalid password reset', httpStatus.NOT_FOUND));
       }
@@ -119,22 +119,22 @@ module.exports = {
         return next(new APIError('Password Reset Link has expired', httpStatus.UNAUTHORIZED));
       }
 
-      const user = await User.findOne({ _id: passwordReset.userId })
+      const user = await User.findOne({ _id: passwordReset.userId });
 
       if (!user) {
         return next(new APIError('User not found', httpStatus.NOT_FOUND));
       }
 
       // Update password and mark old as deleted
-      user.password = User.generateHash(newPassword)
+      user.password = User.generateHash(newPassword);
       await user.save();
       passwordReset.isDeleted = true;
       await passwordReset.save();
 
       return res.status(httpStatus.OK).json({
         user: user.withoutPass(),
-        passwordReset
-      })
+        passwordReset,
+      });
     } catch (err) {
       return next(err);
     }

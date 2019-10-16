@@ -4,27 +4,27 @@ const PasswordResetSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true
+    required: true,
   },
-  hash: { 
-    type: String, 
-    required: true 
+  hash: {
+    type: String,
+    required: true,
   },
   email: {
     type: String,
-    required: true
+    required: true,
   },
   isDeleted: {
     type: Boolean,
-    default: false
-  }
+    default: false,
+  },
 }, {
   timestamps: true,
 });
 
 PasswordResetSchema.method({
-  isExpired: function() {
-    const creationDate = new Date(this.createdAt)
+  isExpired() {
+    const creationDate = new Date(this.createdAt);
     const currentDate = new Date();
     const timeDiff = Math.abs(creationDate.getTime() - currentDate.getTime());
     const diffHours = timeDiff / 3600000;
