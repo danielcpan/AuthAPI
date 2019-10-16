@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const UserSchema = new mongoose.Schema({
+const PasswordResetSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
@@ -14,7 +14,7 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  deleted: {
+  isDeleted: {
     type: Boolean,
     default: false
   }
@@ -22,4 +22,16 @@ const UserSchema = new mongoose.Schema({
   timestamps: true,
 });
 
-module.exports = mongoose.model('User', UserSchema);
+PasswordResetSchema.method({
+  isExpired: function() {
+    const creationDate = new Date(this.createdAt)
+    const currentDate = new Date();
+    const timeDiff = Math.abs(creationDate.getTime() - currentDate.getTime());
+    const diffHours = timeDiff / 3600000;
+
+    // Currently set to always expire after 1 hour
+    return diffHours > 1;
+  },
+});
+
+module.exports = mongoose.model('PasswordReset', PasswordResetSchema);

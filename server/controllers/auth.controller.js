@@ -1,8 +1,10 @@
 const jwt = require('jsonwebtoken');
 const httpStatus = require('http-status');
+const randomstring = require("randomstring");
 const User = require('../models/user.model');
+const PasswordReset = require('../models/password-reset.model');
 const APIError = require('../utils/APIError.utils');
-const { sendRegistrationEmail } = require('../utils/node-mailer.utils');
+const { sendRegistrationEmail, sendResetPasswordEmail } = require('../utils/node-mailer.utils');
 const { JWT_SECRET, EMAIL_SECRET } = require('../config/config');
 
 module.exports = {
@@ -71,16 +73,65 @@ module.exports = {
   },
   requestPasswordReset: async (req, res, next) => {
     try {
-      return res.status(httpStatus.OK).json(req.user)
+      const { email } = req.body;
+
+      const user = await User.findOne({ email })
+  
+      if (!user) {
+        return next(new APIError('User not found', httpStatus.NOT_FOUND));
+      }
+
+      const secretKey = randomstring.generate({ charset: 'alphanumeric' });
+      const hash = User.generateHash(secretKey);
+      // This is what we store in the db:
+      const newPasswordReset = new PasswordReset({
+        userId: user._id,
+        hash,
+        email
+      });
+
+      await newPasswordReset.save();
+      sendResetPasswordEmail(email, secretKey, newPasswordReset._id)
+
+      return res.status(httpStatus.OK)
     } catch (err) {
       return next(err);
     }
   },
   regainPassword: async (req, res, next) => {
     try {
-      return res.status(httpStatus.OK).json(req.user)
+      const { secretKey, newPassword, passwordResetId } = req.body
+      const hash = User.generateHash(secretKey);
+
+      const passwordReset = await PasswordReset.findOne({ _id: passwordResetId, deleted: false });
+
+      if (!passwordReset) {
+        return next(new APIError('Invalid password reset', httpStatus.NOT_FOUND));
+      }
+
+      if (!User.isValidHash({ hash, original: secretKey })) {
+        return next(new APIError('Invalid password reset', httpStatus.NOT_FOUND));
+      }      
+
+      if (passwordReset.isExpired()) {
+        return next(new APIError('Password Reset Link has expired', httpStatus.UNAUTHORIZED));
+      }
+
+      const user = await User.find({ _id: passwordReset.userId })
+
+      if (!user) {
+        return next(new APIError('User not found', httpStatus.NOT_FOUND));
+      }
+      
+      // Update password and mark old as deleted
+      user.password = User.generateHash(newPassword)
+      await user.save();
+      passwordReset.isDeleted = true;
+      await passwordReset.save();
+
+      return res.status(httpStatus.OK)
     } catch (err) {
       return next(err);
     }
-  },  
+  },
 };

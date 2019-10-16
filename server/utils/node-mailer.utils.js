@@ -22,10 +22,10 @@ module.exports = {
   },
   sendRegistrationEmail: async (email, emailToken) => {
     const transporter = module.exports.createTransporter();
-    const html = fs.readFileSync(path.resolve(__dirname + '../../assets/register-email.html'), 'utf8')
+    const html = fs.readFileSync(path.resolve(__dirname + '../../assets/email-template.html'), 'utf8')
     const template = handlebars.compile(html);
     const replacements = {
-      msg: `Thanks for making an account for one of my portfolio apps! Click below to verify your account`,
+      msg: 'Thanks for making an account for one of my portfolio apps! Click below to verify your account. Expires in 1 hour.',
       actionLink: `${PUBLIC_URL}/api/auth/verify-email/${emailToken}`,
       actionMsg: 'Verify My Email'
     }
@@ -46,17 +46,32 @@ module.exports = {
     } catch (err) {
       return console.log(err)
     }
+  },
+  sendResetPasswordEmail: async (email, secretKey, passwordResetId) => {
+    const transporter = module.exports.createTransporter();
+    const html = fs.readFileSync(path.resolve(__dirname + '../../assets/email-template.html'), 'utf8')
+    const template = handlebars.compile(html);
+    const replacements = {
+      msg: `You've requested to reset your password. Click below to reset the password to your account. Expires in 1 hour.`,
+      actionLink: `${PUBLIC_URL}/api/auth/regainPassword/${secretKey}/${passwordResetId}`,
+      actionMsg: 'Reset My Password'
+    }
+    const htmlToSend = template(replacements)
+
+    try {
+      const info = await transporter.sendMail({
+        from: `"Daniel's Auth API Service" <${NODE_MAILER_USER}>`, 
+        to: email, 
+        subject: 'Reset Your Password', 
+        html: htmlToSend
+      })
+
+      if (ENV === 'development') {
+        console.log('Message sent: %s', info.messageId);   
+        console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));      
+      }      
+    } catch (err) {
+      return console.log(err)
+    }
   }
 }
-
-// const readHTMLFile = function(path, callback) {
-//   fs.readFile(path, {encoding: 'utf-8'}, function (err, html) {
-//       if (err) {
-//           throw err;
-//           callback(err);
-//       }
-//       else {
-//           callback(null, html);
-//       }
-//   });
-// };

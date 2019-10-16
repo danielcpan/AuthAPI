@@ -14,10 +14,10 @@ router.route('/login')
 router.route('/verify-email/:token')
   .get(authController.verifyEmail)
 
-// router.route('/regain-password')
-//   .post(validate(paramValidation.regainPassword), userController.regainPassword);
+router.route('/regain-password/:passwordResetId')
+  .get(authController.regainPassword);
 
-// router.route('/request-password-reset')
-//   .post(validate(paramValidation.requestPasswordReset),userController.requestPasswordReset);
+router.route('/request-password-reset')
+  .post(validate(paramValidation.requestPasswordReset), authController.requestPasswordReset);
 
 module.exports = router;
