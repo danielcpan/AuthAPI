@@ -1,7 +1,7 @@
 {
   "name": "auth-api",
   "version": "1.0.0",
-  "description": "Node API that handles authentication for any app",
+  "description": "Node API Service that handles authentication for any app",
   "main": "index.js",
   "scripts": {
     "lint": "./node_modules/.bin/eslint --fix server",
