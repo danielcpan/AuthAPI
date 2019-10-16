@@ -1,6 +1,6 @@
 module.exports = {
   ENV: 'production',
-  MONGODB_URI: 'mongodb://heroku_j3npvbjk:clh9dgs21qhlns7g4fcpv1vujc@ds163757.mlab.com:63757/heroku_j3npvbjk',
+  MONGODB_URI: process.env.MONGODB_URI,
   PORT: process.env.PORT || 5000,
   PUBLIC_URL: 'http://localhost:5000', // TO BE CHANGED
   JWT_SECRET: process.env.JWT_SECRET,
