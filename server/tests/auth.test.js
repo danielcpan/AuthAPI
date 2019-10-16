@@ -182,5 +182,88 @@ describe('## Auth APIs', () => {
         expect(loginResponse.status).to.equal(httpStatus.UNAUTHORIZED);
       });
     })
+  });
+
+  describe('# GET /api/auth/verify-email/:token', () => {
+    describe('with valid user credentials', () => {
+      it('should mark user as verified', async () => {
+        const validUserCredentials = {
+          email: 'foobar@gmail.com',
+          password: 'foobar123',
+        }
+        const registerResponse = await request(app)
+          .post('/api/auth/register')
+          .send(validUserCredentials);
+
+        const { emailToken } = registerResponse.body;
+  
+        expect(registerResponse.status).to.equal(httpStatus.CREATED);
+
+        const verifyEmailResponse = await request(app)
+          .get(`/api/auth/verify-email/${emailToken}`)
+
+        expect(verifyEmailResponse.status).to.equal(httpStatus.OK);
+        expect(verifyEmailResponse.text).to.equal('Email Verified!');
+      });
+    })
+  });
+
+  describe('# POST /api/auth/request-password-reset', () => {
+    describe('with valid user credentials', () => {
+      it('should create a password reset object and send an email', async () => {
+        const validUserCredentials = {
+          email: 'foobar@gmail.com',
+          password: 'foobar123',
+        }
+        const registerResponse = await request(app)
+          .post('/api/auth/register')
+          .send(validUserCredentials);
+  
+        expect(registerResponse.status).to.equal(httpStatus.CREATED);
+
+        const requestPasswordResetResponse = await request(app)
+          .post('/api/auth/request-password-reset')
+          .send({ email: validUserCredentials.email });
+
+        const { passwordReset } = requestPasswordResetResponse.body
+        expect(requestPasswordResetResponse.status).to.equal(httpStatus.OK);
+        expect(passwordReset.email).to.be.equal(validUserCredentials.email)
+      });
+    })
   });  
+
+  describe('# POST /api/auth/regain-password/:passwordResetId', () => {
+    describe('with valid user credentials', () => {
+      it('should mark old password reset object as deleted and give new password to user', async () => {
+        const validUserCredentials = {
+          email: 'foobar@gmail.com',
+          password: 'foobar123',
+        }
+        const registerResponse = await request(app)
+          .post('/api/auth/register')
+          .send(validUserCredentials);
+  
+        expect(registerResponse.status).to.equal(httpStatus.CREATED);
+
+        const requestPasswordResetResponse = await request(app)
+          .post('/api/auth/request-password-reset')
+          .send({ email: validUserCredentials.email });
+          
+        const { passwordReset, secretKey } = requestPasswordResetResponse.body;
+
+        const regainPasswordCredentials = {
+          passwordResetId: passwordReset._id,
+          secretKey: secretKey,
+          newPassword: 'newPassword'
+        }
+
+        const regainPasswordResponse = await request(app)
+          .post(`/api/auth/regain-password/${passwordReset._id}`)
+          .send(regainPasswordCredentials)
+
+        expect(regainPasswordResponse.status).to.equal(httpStatus.OK);
+        expect(regainPasswordResponse.body.passwordReset.isDeleted).to.be.true
+      });
+    })
+  })  
 });

@@ -21,7 +21,7 @@ module.exports = {
   // POST /api/user/regain-password
   regainPassword: {
     body: {
-      resetUID: Joi.string().required(),
+      passwordResetId: Joi.string().required(),
       newPassword: Joi.string().required(),
       secretKey: Joi.string().required()
     }

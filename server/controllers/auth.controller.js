@@ -29,7 +29,8 @@ module.exports = {
 
       return res.status(httpStatus.CREATED).json({
         user: newUser.withoutPass(),
-        authToken
+        authToken,
+        emailToken
       });
     } catch (err) {
       return next(err);
@@ -71,10 +72,10 @@ module.exports = {
       return next(err);
     }
   },
+  // Functionality works but needs a front end form
   requestPasswordReset: async (req, res, next) => {
     try {
       const { email } = req.body;
-
       const user = await User.findOne({ email })
   
       if (!user) {
@@ -83,53 +84,57 @@ module.exports = {
 
       const secretKey = randomstring.generate({ charset: 'alphanumeric' });
       const hash = User.generateHash(secretKey);
-      // This is what we store in the db:
       const newPasswordReset = new PasswordReset({
         userId: user._id,
         hash,
         email
       });
-
       await newPasswordReset.save();
       sendResetPasswordEmail(email, secretKey, newPasswordReset._id)
 
-      return res.status(httpStatus.OK)
+      return res.status(httpStatus.OK).json({
+        passwordReset: newPasswordReset,
+        secretKey: secretKey
+      })
     } catch (err) {
       return next(err);
     }
   },
+  // Functionality works but needs a front end form
   regainPassword: async (req, res, next) => {
     try {
       const { secretKey, newPassword, passwordResetId } = req.body
-      const hash = User.generateHash(secretKey);
-
-      const passwordReset = await PasswordReset.findOne({ _id: passwordResetId, deleted: false });
-
+      const passwordReset = await PasswordReset.findOne({ _id: passwordResetId, isDeleted: false });
+      
       if (!passwordReset) {
         return next(new APIError('Invalid password reset', httpStatus.NOT_FOUND));
       }
 
+      const hash = User.generateHash(secretKey);
       if (!User.isValidHash({ hash, original: secretKey })) {
         return next(new APIError('Invalid password reset', httpStatus.NOT_FOUND));
-      }      
+      }
 
       if (passwordReset.isExpired()) {
         return next(new APIError('Password Reset Link has expired', httpStatus.UNAUTHORIZED));
       }
 
-      const user = await User.find({ _id: passwordReset.userId })
+      const user = await User.findOne({ _id: passwordReset.userId })
 
       if (!user) {
         return next(new APIError('User not found', httpStatus.NOT_FOUND));
       }
-      
+
       // Update password and mark old as deleted
       user.password = User.generateHash(newPassword)
       await user.save();
       passwordReset.isDeleted = true;
       await passwordReset.save();
 
-      return res.status(httpStatus.OK)
+      return res.status(httpStatus.OK).json({
+        user: user.withoutPass(),
+        passwordReset
+      })
     } catch (err) {
       return next(err);
     }
