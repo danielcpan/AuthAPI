@@ -40,7 +40,7 @@ const UserSchema = new mongoose.Schema({
 });
 
 UserSchema.method({
-  validPassword(password) {
+  isValidPassword(password) {
     return bcrypt.compareSync(password, this.password);
   },
   withoutPass() {
