@@ -23,7 +23,6 @@ const UserSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: true,
     min: 6,
     max: 255,
   },
@@ -34,6 +33,15 @@ const UserSchema = new mongoose.Schema({
   isAdmin: {
     type: Boolean,
     default: false,
+  },
+  facebookId: {
+    type: String,
+  },
+  googleId: {
+    type: String,
+  },
+  githubId: {
+    type: String,
   },
 }, {
   timestamps: true,

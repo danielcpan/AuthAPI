@@ -15,6 +15,7 @@ router.route('/search')
 
 router.route('/:userId')
   .get(expressJwt({ secret: JWT_SECRET }), userController.get)
+  // .get(userController.get)
   .put(
     expressJwt({ secret: JWT_SECRET }),
     validate(paramValidation.updateUser), userController.update,

@@ -9,7 +9,7 @@ const bodyParser = require('body-parser');
 const expressWinston = require('express-winston');
 const expressValidation = require('express-validation');
 const winstonInstance = require('./winston');
-const passport = require('./utils/passport.utils')
+const passport = require('./utils/passport.utils');
 const routes = require('./routes/index.route');
 const APIError = require('./utils/APIError.utils');
 const { ENV } = require('./config/config');
@@ -23,7 +23,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(compress());
 app.use(helmet());
 app.use(cors());
-app.use(passport.initialize())
+app.use(passport.initialize());
 
 // ENABLE DETAILED API LOGGING IN DEV ENV
 if (ENV === 'development') {
@@ -37,6 +37,15 @@ if (ENV === 'development') {
 
 // MOUNT ALL ROUTES ON API
 app.use('/api', routes);
+
+// app.get('/api/auth/facebook',
+//   passport.authenticate('facebook', { session: false }));
+
+// app.get('/api/auth/facebook/callback',
+//   passport.authenticate('facebook'),
+//   (req, res) => {
+//     res.send('Authenticated with Facebook!');
+//   });
 
 // IF ERROR IS NOT AN INSTANCE OF APIERROR, CONVERT IT
 app.use((err, req, res, next) => {

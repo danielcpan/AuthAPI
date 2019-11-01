@@ -56,7 +56,8 @@ module.exports = {
   //   }
   // },
   login: async (req, res, next) => {
-    console.log('inside the controllern now!')
+    console.log('inside the controllern now!');
+    // console.log(req.user);
     // console.log(req)
     try {
       const user = await User.findOne({ email: new RegExp(req.body.email, 'i') });
@@ -75,7 +76,17 @@ module.exports = {
     } catch (err) {
       return next(err);
     }
-  },  
+  },
+  socialLogin: async (req, res, next) => {
+    try {
+      const user = await User.findById(req.user.id);
+      const authToken = jwt.sign(user.withoutPass(), JWT_SECRET, { expiresIn: '365d' });
+
+      return res.status(httpStatus.OK).json({ authToken });
+    } catch (err) {
+      return next(err);
+    }
+  },
   verifyEmail: async (req, res, next) => {
     try {
       const { _id } = jwt.verify(req.params.token, EMAIL_SECRET);
