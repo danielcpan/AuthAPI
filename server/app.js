@@ -12,12 +12,12 @@ const winstonInstance = require('./winston');
 const passport = require('./utils/passport.utils');
 const routes = require('./routes/index.route');
 const APIError = require('./utils/APIError.utils');
-const { ENV } = require('./config/config');
+const config = require('./config/config');
 
 const app = express();
 
 // MIDDLEWARE
-if (ENV === 'developmet') app.use(morgan);
+if (config.ENV === 'developmet') app.use(morgan);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(compress());
@@ -26,7 +26,7 @@ app.use(cors());
 app.use(passport.initialize());
 
 // ENABLE DETAILED API LOGGING IN DEV ENV
-if (ENV === 'development') {
+if (config.ENV === 'development') {
   app.use(expressWinston.logger({
     winstonInstance,
     meta: true,
@@ -62,7 +62,7 @@ app.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
   res.status(err.status || 500).json({
     name: err.name,
     message: err.isPublic ? err.message : httpStatus[err.status],
-    stack: ENV === 'development' ? err.stack : {},
+    stack: config.ENV === 'development' ? err.stack : {},
   });
 });
 

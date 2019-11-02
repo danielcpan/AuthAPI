@@ -3,7 +3,7 @@ const httpStatus = require('http-status');
 const app = require('../app');
 const User = require('../models/user.model');
 const { clearDatabase } = require('../utils/mongoose.utils');
-const { JWT_SECRET } = require('../config/config');
+const config = require('../config/config');
 
 after(async () => {
   await clearDatabase();
@@ -26,7 +26,7 @@ describe('## Auth APIs', () => {
           .send(validUserCredentials);
 
         const { user, authToken } = response.body;
-        const decoded = jwt.verify(authToken, JWT_SECRET);
+        const decoded = jwt.verify(authToken, config.JWT_SECRET);
 
         expect(response.status).to.equal(httpStatus.CREATED);
         expect(user.email).to.equal(validUserCredentials.email);
@@ -135,7 +135,7 @@ describe('## Auth APIs', () => {
           .send(validUserCredentials);
 
         const { authToken } = loginResponse.body;
-        const decoded = jwt.verify(authToken, JWT_SECRET);
+        const decoded = jwt.verify(authToken, config.JWT_SECRET);
 
         expect(loginResponse.status).to.equal(httpStatus.OK);
         expect(decoded.email).to.equal(validUserCredentials.email);

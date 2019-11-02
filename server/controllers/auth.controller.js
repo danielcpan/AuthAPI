@@ -5,7 +5,7 @@ const User = require('../models/user.model');
 const PasswordReset = require('../models/password-reset.model');
 const APIError = require('../utils/APIError.utils');
 const { sendRegistrationEmail, sendResetPasswordEmail } = require('../utils/node-mailer.utils');
-const { JWT_SECRET, EMAIL_SECRET } = require('../config/config');
+const config = require('../config/config');
 
 module.exports = {
   register: async (req, res, next) => {
@@ -23,8 +23,8 @@ module.exports = {
       });
 
       await newUser.save();
-      const authToken = jwt.sign(newUser.withoutPass(), JWT_SECRET, { expiresIn: '365d' });
-      const emailToken = jwt.sign(newUser.withoutPass(), EMAIL_SECRET, { expiresIn: '1h' });
+      const authToken = jwt.sign(newUser.withoutPass(), config.JWT_SECRET, { expiresIn: '365d' });
+      const emailToken = jwt.sign(newUser.withoutPass(), config.EMAIL_SECRET, { expiresIn: '1h' });
       sendRegistrationEmail(req.body.email, emailToken);
 
       return res.status(httpStatus.CREATED).json({
@@ -36,29 +36,7 @@ module.exports = {
       return next(err);
     }
   },
-  // login: async (req, res, next) => {
-  //   try {
-  //     const user = await User.findOne({ email: new RegExp(req.body.email, 'i') });
-
-  //     if (!user) {
-  //       return next(new APIError('User not found', httpStatus.NOT_FOUND));
-  //     }
-
-  //     if (!user.isValidPassword(req.body.password)) {
-  //       return next(new APIError('Password is incorrect', httpStatus.UNAUTHORIZED));
-  //     }
-
-  //     const authToken = jwt.sign(user.withoutPass(), JWT_SECRET, { expiresIn: '365d' });
-
-  //     return res.status(httpStatus.OK).json({ authToken });
-  //   } catch (err) {
-  //     return next(err);
-  //   }
-  // },
   login: async (req, res, next) => {
-    console.log('inside the controllern now!');
-    // console.log(req.user);
-    // console.log(req)
     try {
       const user = await User.findOne({ email: new RegExp(req.body.email, 'i') });
 
@@ -70,7 +48,7 @@ module.exports = {
         return next(new APIError('Password is incorrect', httpStatus.UNAUTHORIZED));
       }
 
-      const authToken = jwt.sign(user.withoutPass(), JWT_SECRET, { expiresIn: '365d' });
+      const authToken = jwt.sign(user.withoutPass(), config.JWT_SECRET, { expiresIn: '365d' });
 
       return res.status(httpStatus.OK).json({ authToken });
     } catch (err) {
@@ -80,7 +58,7 @@ module.exports = {
   socialLogin: async (req, res, next) => {
     try {
       const user = await User.findById(req.user.id);
-      const authToken = jwt.sign(user.withoutPass(), JWT_SECRET, { expiresIn: '365d' });
+      const authToken = jwt.sign(user.withoutPass(), config.JWT_SECRET, { expiresIn: '365d' });
 
       return res.status(httpStatus.OK).json({ authToken });
     } catch (err) {
@@ -89,7 +67,7 @@ module.exports = {
   },
   verifyEmail: async (req, res, next) => {
     try {
-      const { _id } = jwt.verify(req.params.token, EMAIL_SECRET);
+      const { _id } = jwt.verify(req.params.token, config.EMAIL_SECRET);
       const user = await User.findOne({ _id });
 
       if (!user) {

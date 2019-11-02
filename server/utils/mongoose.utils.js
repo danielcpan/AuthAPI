@@ -1,11 +1,11 @@
 /* eslint-disable no-console */
 const mongoose = require('mongoose');
-const { MONGODB_URI } = require('../config/config');
+const config = require('../config/config');
 
 module.exports = {
   connectMongo: () => {
     try {
-      mongoose.connect(MONGODB_URI, {
+      mongoose.connect(config.MONGODB_URI, {
         useNewUrlParser: true,
         useUnifiedTopology: true,
         useCreateIndex: true,
