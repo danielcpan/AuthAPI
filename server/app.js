@@ -38,15 +38,6 @@ if (ENV === 'development') {
 // MOUNT ALL ROUTES ON API
 app.use('/api', routes);
 
-// app.get('/api/auth/facebook',
-//   passport.authenticate('facebook', { session: false }));
-
-// app.get('/api/auth/facebook/callback',
-//   passport.authenticate('facebook'),
-//   (req, res) => {
-//     res.send('Authenticated with Facebook!');
-//   });
-
 // IF ERROR IS NOT AN INSTANCE OF APIERROR, CONVERT IT
 app.use((err, req, res, next) => {
   if (err instanceof expressValidation.ValidationError) {
