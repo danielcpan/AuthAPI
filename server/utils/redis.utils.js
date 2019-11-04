@@ -36,6 +36,7 @@ const checkCache = async (req, res, next) => {
 
 const addToCache = (req, expirationTime = 300, value) => {
   if (config.ENV === 'test') return;
+
   const key = buildKey(req);
 
   if (config.ENV === 'development') {
