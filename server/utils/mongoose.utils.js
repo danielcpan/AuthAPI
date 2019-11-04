@@ -10,6 +10,7 @@ module.exports = {
         useUnifiedTopology: true,
         useCreateIndex: true,
       });
+      console.log('Mongo Connection Successful');
     } catch (err) {
       console.log(`Mongo Connection Error: ${err}`);
     }

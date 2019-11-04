@@ -1,10 +1,12 @@
 const httpStatus = require('http-status');
 const User = require('../models/user.model');
 const APIError = require('../utils/APIError.utils');
+const { addToCache } = require('../utils/redis.utils');
 
 module.exports = {
   me: async (req, res, next) => {
     try {
+      addToCache(req, 300, req.user);
       return res.status(httpStatus.OK).json(req.user);
     } catch (err) {
       return next(err);
@@ -13,12 +15,18 @@ module.exports = {
   get: async (req, res, next) => {
     const { userId } = req.params;
 
+    if (!req.user.isAdmin && userId !== req.user._id) {
+      return next(new APIError('No Admin Access', httpStatus.UNAUTHORIZED));
+    }
+
     try {
       const user = await User.findOne({ _id: userId });
 
       if (!user) {
         return next(new APIError('User not found', httpStatus.NOT_FOUND));
       }
+
+      addToCache(req, 300, user.withoutPass());
 
       return res.status(httpStatus.OK).json(user.withoutPass());
     } catch (err) {
@@ -39,6 +47,8 @@ module.exports = {
       })
         .select('-password')
         .limit(10);
+
+      addToCache(req, 300, users);
 
       return res.status(httpStatus.OK).json(users);
     } catch (err) {

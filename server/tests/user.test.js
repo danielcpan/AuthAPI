@@ -9,6 +9,8 @@ after(async () => {
 describe('## User APIs', () => {
   let user1;
   let user1AuthToken;
+  let admin1;
+  let admin1AuthToken;
 
   before(async () => {
     const validUserCredentials = {
@@ -16,12 +18,25 @@ describe('## User APIs', () => {
       password: 'foobar123',
     };
 
-    const response = await request(app)
+    const validAdminCredentials = {
+      email: 'foobarAdmin@gmail.com',
+      password: 'foobar123',
+      isAdmin: true,
+    };
+
+    const user1Response = await request(app)
       .post('/api/auth/register')
       .send(validUserCredentials);
 
-    user1 = response.body.user;
-    user1AuthToken = response.body.authToken;
+    user1 = user1Response.body.user;
+    user1AuthToken = user1Response.body.authToken;
+
+    const admin1Response = await request(app)
+      .post('/api/auth/register')
+      .send(validAdminCredentials);
+
+    admin1 = admin1Response.body.user;
+    admin1AuthToken = admin1Response.body.authToken;
   });
 
   describe('# GET /api/users/me', () => {
@@ -75,9 +90,19 @@ describe('## User APIs', () => {
       it('should return not found error', async () => {
         const response = await request(app)
           .get('/api/users/nonExistingUserId')
-          .set('Authorization', `Bearer ${user1AuthToken}`);
+          .set('Authorization', `Bearer ${admin1AuthToken}`);
 
         expect(response.status).to.equal(httpStatus.INTERNAL_SERVER_ERROR);
+      });
+    });
+
+    describe('with userId that is not self', () => {
+      it('should return authentication error (No Admin Access)', async () => {
+        const response = await request(app)
+          .get('/api/users/nonExistingUserId')
+          .set('Authorization', `Bearer ${user1AuthToken}`);
+
+        expect(response.status).to.equal(httpStatus.UNAUTHORIZED);
       });
     });
   });
@@ -91,7 +116,7 @@ describe('## User APIs', () => {
           .set('Authorization', `Bearer ${user1AuthToken}`);
 
         expect(response.status).to.equal(httpStatus.OK);
-        expect(response.body.length).to.equal(1);
+        expect(response.body.length).to.equal(2);
       });
     });
 
