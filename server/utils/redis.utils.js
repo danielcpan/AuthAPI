@@ -21,15 +21,15 @@ const checkCache = async (req, res, next) => {
     const cachedData = await getAsync(key);
 
     if (!cachedData) {
-      if (config.env === 'development') console.log('NO CACHED DATA');
+      if (config.ENV === 'development') console.log('NO CACHED DATA');
       return next();
     }
 
-    if (config.env === 'development') console.log('WE GOT CACHED DATA FROM REDIS');
+    if (config.ENV === 'development') console.log('WE GOT CACHED DATA FROM REDIS');
 
     return res.status(httpStatus.OK).json(JSON.parse(cachedData));
   } catch (err) {
-    if (config.env === 'development') console.log(`REDIS ERROR ${err}`);
+    if (config.ENV === 'development') console.log(`REDIS ERROR ${err}`);
     return next();
   }
 };
