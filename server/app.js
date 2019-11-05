@@ -7,11 +7,12 @@ const helmet = require('helmet');
 const compress = require('compression');
 const bodyParser = require('body-parser');
 const expressWinston = require('express-winston');
-const expressValidation = require('express-validation');
+// const expressValidation = require('express-validation');
 const winstonInstance = require('./winston');
 const passport = require('./utils/passport.utils');
 const routes = require('./routes/index.route');
-const APIError = require('./utils/APIError.utils');
+// const APIError = require('./utils/APIError.utils');
+const errorHandler = require('./utils/error-handler.utils');
 const config = require('./config/config');
 
 const app = express();
@@ -39,31 +40,10 @@ if (config.ENV === 'development') {
 app.use('/api', routes);
 
 // IF ERROR IS NOT AN INSTANCE OF APIERROR, CONVERT IT
-app.use((err, req, res, next) => {
-  if (err instanceof expressValidation.ValidationError) {
-    const unifiedErrorMessage = err.errors.map((error) => error.messages.join('. ')).join(' and ');
-    const validationError = new APIError(unifiedErrorMessage, err.status, true);
-    return next(validationError);
-  } if (!(err instanceof APIError)) {
-    const apiError = new APIError(err.message, err.status);
-    return next(apiError);
-  }
-  return next(err);
-});
-
+app.use(errorHandler.convertToAPIError);
 // CATCH 404 AND FORWARD TO ERROR HANDLER
-app.use((req, res, next) => {
-  const err = new APIError('API not found', httpStatus.NOT_FOUND);
-  return next(err);
-});
-
+app.use(errorHandler.httpError(httpStatus.NOT_FOUND));
 // ERROR HANDLER
-app.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
-  res.status(err.status || 500).json({
-    name: err.name,
-    message: err.isPublic ? err.message : httpStatus[err.status],
-    stack: config.ENV === 'development' ? err.stack : {},
-  });
-});
+app.use(errorHandler.log);
 
 module.exports = app;
