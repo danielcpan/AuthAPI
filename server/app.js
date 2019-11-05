@@ -7,11 +7,9 @@ const helmet = require('helmet');
 const compress = require('compression');
 const bodyParser = require('body-parser');
 const expressWinston = require('express-winston');
-// const expressValidation = require('express-validation');
-const winstonInstance = require('./winston');
+const winstonInstance = require('./utils/winston.utils');
 const passport = require('./utils/passport.utils');
 const routes = require('./routes/index.route');
-// const APIError = require('./utils/APIError.utils');
 const errorHandler = require('./utils/error-handler.utils');
 const config = require('./config/config');
 
